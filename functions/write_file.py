@@ -1,5 +1,5 @@
 import os
-from utils import is_in_working_dir
+from functions.utils import is_in_working_dir
 
 def write_file(working_directory, file_path, content):
     try:
