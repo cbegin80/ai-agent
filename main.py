@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 import argparse
+from prompts import system_prompt
 
 def main():
     # get prompt from command line arguments
@@ -29,8 +30,10 @@ def main():
     verbose = args.verbose
 
     response = client.models.generate_content(
-        model = "gemini-2.5-flash", contents = prompt
-    )
+        model="gemini-2.5-flash", contents=prompt,
+        config=types.GenerateContentConfig(system_instruction=system_prompt,
+                                           temperature=0),
+        )
     
     # print metadata if requested
     if verbose:
