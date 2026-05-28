@@ -16,8 +16,9 @@ schema_get_files_content = types.FunctionDeclaration(
                              "the working directory (default is the working " \
                              "directory itself)."),
             )
-        }
-    )
+        },
+        required=["file_path"]
+    ),
 )
 
 def get_file_content(working_directory, file_path):
