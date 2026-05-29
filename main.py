@@ -58,8 +58,7 @@ def main():
         for function_call in response.function_calls:
            
             function_call_result = call_function(function_call, verbose)
-            # print(function_call_result)                                                     #TRACE
-            # print(function_call_result.parts)                                               #TRACE
+
 
             # check that response is valid
             if (not isinstance(function_call_result.parts, list) or
