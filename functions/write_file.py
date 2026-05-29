@@ -1,5 +1,28 @@
 import os
 from functions.utils import is_in_working_dir
+from google.genai import types
+
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description=("Writes a Python file in the working directory.\n"
+                 "If the file already exists, it is overwritten."),
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description=("Path to the file to write, relative to "
+                             "the working directory (default is the working " \
+                             "directory itself)."),
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description=("The content to write to the file.")          
+            )
+        },
+        required=["file_path"]
+    ),
+)
 
 def write_file(working_directory, file_path, content):
     try:

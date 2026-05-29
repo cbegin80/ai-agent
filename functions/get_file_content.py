@@ -3,8 +3,8 @@ from functions.utils import is_in_working_dir
 from google.genai import types
 
 MAX_CHARS = 10000
-schema_get_files_content = types.FunctionDeclaration(
-    name="get_files_content",
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
     description=("Gets the contents of a file in the working directory as a "
                  "string."),
     parameters=types.Schema(
