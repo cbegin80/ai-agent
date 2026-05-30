@@ -30,52 +30,68 @@ def main():
     prompt = args.user_prompt
     verbose = args.verbose
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=prompt,
-        config=types.GenerateContentConfig(
-            tools=[available_functions],
-            system_instruction=system_prompt,
-            temperature=0),
-        )
-    
-    # print metadata if requested
-    if verbose:
-        print(f"User prompt: {prompt}")
-        if response.usage_metadata:
-            print(
-                f"Prompt tokens: {response.usage_metadata.prompt_token_count}"
-                )
-            print(
-                "Response tokens: "
-                f"{response.usage_metadata.candidates_token_count}"
-                )
-        else:
-            raise RuntimeError("No response received from API")
-
-    # if there are any function calls in the response
-    if type(response.function_calls) == list:
-        # print the list of function calls
-        for function_call in response.function_calls:
-           
-            function_call_result = call_function(function_call, verbose)
-
-
-            # check that response is valid
-            if (not isinstance(function_call_result.parts, list) or
-                function_call_result.parts == None or 
-                function_call_result.parts == [] or 
-                function_call_result.parts[0].function_response == None or
-                function_call_result.parts[0].function_response.response == None
-            ):
-                raise Exception("Function call did not return a valid "
-                                "response.")
-            
-            function_results = [function_call_result.parts[0]]
+    for i in range(20):
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents=messages,
+            config=types.GenerateContentConfig(
+                tools=[available_functions],
+                system_instruction=system_prompt,
+                temperature=0),
+            )
         
-            if verbose:
-                print(f"-> {function_call_result.parts[0].function_response.response}")
-    else:
-        print(response.text)
+        if response.candidates is not None:
+            for candidate in response.candidates:
+                if candidate.content is not None:
+                    messages.append(candidate.content)
+        
+        # print metadata if requested
+        if verbose:
+            print(f"User prompt: {prompt}")
+            if response.usage_metadata:
+                print(
+                    f"Prompt tokens: {response.usage_metadata.prompt_token_count}"
+                    )
+                print(
+                    "Response tokens: "
+                    f"{response.usage_metadata.candidates_token_count}"
+                    )
+            else:
+                raise RuntimeError("No response received from API")
+
+        # if there are any function calls in the response
+        if type(response.function_calls) == list:
+            # print the list of function calls
+            for function_call in response.function_calls:
+            
+                function_call_result = call_function(function_call, verbose)
+
+
+                # check that response is valid
+                if (not isinstance(function_call_result.parts, list) or
+                    function_call_result.parts == None or 
+                    function_call_result.parts == [] or 
+                    function_call_result.parts[0].function_response == None or
+                    function_call_result.parts[0].function_response.response == None
+                ):
+                    raise Exception("Function call did not return a valid "
+                                    "response.")
+                
+                function_results = [function_call_result.parts[0]]
+                messages.append(types.Content(role="user", parts=function_results))
+                # print(f"Messages: {messages}")                                                      # TRACE
+
+                if verbose:
+                    print(f"-> {function_call_result.parts[0].function_response.response}")
+
+                
+                if i == 19:
+                    print("ERROR: The model could not reach an answer after 20 iterations.")
+                    exit(1)
+        else:
+            print(response.text)
+            break
+        
+
 
 if __name__ == "__main__":
     main()
